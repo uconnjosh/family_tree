@@ -127,6 +127,31 @@ def show_marriage
 end
 
 def show_relations
+  puts "Enter the name of the person that you would like to see relationships for:"
+  person_to_search = gets.chomp.titleize
+  person_to_look = Person.where({:name => person_to_search})
+  person_to_look.each do |i|
+    puts "#{i.id} ..... #{i.name}"
+  end
+  puts "Type the number of the person you would like to see relationships for:"
+  person_to_get = gets.chomp.to_i
+  current_person = Person.where({:id => person_to_get})
+  current_person = current_person[0]
+  puts current_person.spouse_id
+  all_my_children = Child.where({:parent_id => current_person.id})
+  all_my_children.each do |child|
+    the_young_and_restless = Person.where({:id => child.person_id})
+    the_young_and_restless.each do |index|
+      puts index.name
+    end
+  end
+  person = Person.find(person_to_get)
+begin
+  spouse = Person.find(person.spouse_id)
+  puts person.name + " is married to " + spouse.name + "."
+rescue
+  puts "Looks like they are still a bachelor(ette)"
+end
 
 end
 
