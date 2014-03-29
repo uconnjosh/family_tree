@@ -19,6 +19,7 @@ def menu
     puts 'Press s to see who someone is married to.'
     puts "Press lp to list parents"
     puts "Press r to show relations"
+    puts "Type 'grand' to search for grandparents"
     puts 'Press e to exit.'
     choice = gets.chomp
 
@@ -37,6 +38,8 @@ def menu
       show_marriage
     when 'lp'
       list_parents
+    when "grand"
+      list_grand
     when 'r'
       show_relations
     when 'e'
@@ -45,46 +48,48 @@ def menu
   end
 end
 
-def add_person
-  puts 'What is the name of the family member?'
-  name = gets.chomp
-  new_person = Person.create(:name => name)
-  puts name + " was added to the family tree.\n\n"
-  new_person
+# def add_person
+#   puts 'What do you want to name the little youngster?'
+#   name = gets.chomp
+#   new_person = Person.create(:name => name)
+#   puts name + " was added to the family tree.\n\n"
+#   new_person
 
-end
 
-def add_parent
-  puts 'What is the name of the parent?'
-  name = gets.chomp
-  Parent.create(:name => name)
+def add_parent(name)
+  new_parent = Parent.create(:name => name)
   puts name + " was added as a parent.\n\n"
+  new_parent.id
 end
 
 def add_child
-  new_child = add_person
+  puts 'What do you want to name the little youngster?'
+  name = gets.chomp
+  new_person = Person.create(:name => name)
   list
   puts "Enter the name of the child's first parent:"
   parent_to_add = gets.chomp
   daddy_or_mommy = Person.where({:name => parent_to_add})
   already_parent = Parent.where({:name => daddy_or_mommy[0].name})
   if already_parent.length == 0
-      add_parent
+      parent_to_add = add_parent(parent_to_add)
     else
+      parent_to_add = daddy_or_mommy[0].id
       puts "Great, you already know the ropes of parenthood!!!!"
-  Child.create({:person_id => new_child.id, :parent_id => parent_to_add})
-  puts new_child.name + " was added as a child.\n\n"
+  end
+  Child.create({:person_id => new_person.id, :parent_id => parent_to_add})
+  puts new_person.name + " was added as a child.\n\n"
   puts "Would you like to add another parent?"
   add_another_parent = gets.chomp.upcase
   case add_another_parent
     when "Y"
       puts "Enter the number of the child's second parent:"
       second_parent_to_add = gets.chomp.to_i
-      Child.create({:person_id => new_child.id, :parent_id => second_parent_to_add})
-      puts "Parent was added as a parent of #{new_child.name}.\n\n"
+      Child.create({:person_id => new_person.id, :parent_id => second_parent_to_add})
+      puts "Parent was added as a parent of #{new_person.name}.\n\n"
   end
 end
-end
+
 
 
 def add_marriage
@@ -125,6 +130,20 @@ def show_marriage
   spouse = Person.find(person.spouse_id)
   puts person.name + " is married to " + spouse.name + "."
 end
+
+def list_grand
+  grand_parents = []
+  puts "Enter the name of the person you would like to see grandparents for:"
+  grandchild_to_find = Person.where({:name => gets.chomp})
+  grandchild_to_find.each do |i|
+    puts "#{i.id}.....#{i.name}"
+    end
+  puts "I found the following matches, enter the id of the granchild youd like to see grand parents for:"
+    grand_child = Person.find(gets.chomp.to_i)
+    parents = Children.where({:person_id => grand_child.id})
+    parents.each do |parent|
+      current_parent
+
 
 def show_relations
   puts "Enter the name of the person that you would like to see relationships for:"
